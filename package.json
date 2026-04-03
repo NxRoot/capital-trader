@@ -1,0 +1,42 @@
+{
+  "name": "capital-trader",
+  "version": "1.0.2",
+  "description": "An automated trading bot for Capital.com with AI-powered strategy generation via Claude or ChatGPT.",
+  "main": "src/cli.js",
+  "bin": {
+    "capital": "src/cli.js"
+  },
+  "scripts": {
+    "release": "npm version patch && npm publish"
+  },
+  "files": [
+    "src/",
+    "config.json"
+  ],
+  "author": "NxRoot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NxRoot/capital-trader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NxRoot/capital-trader/issues"
+  },
+  "homepage": "https://github.com/NxRoot/capital-trader#readme",
+  "keywords": [
+    "capital",
+    "trader",
+    "bot",
+    "ai",
+    "strategy",
+    "backtesting",
+    "dashboard",
+    "trading",
+    "trading-bot",
+    "trading-strategy",
+    "capital.com"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.20.0"
+  }
+}
