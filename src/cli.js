@@ -1,47 +1,27 @@
 #!/usr/bin/env node
 const arg = process.argv[2];
 
-// Start the bot
+const commands = {
+  "--help":   () => require('./help'),
+  "--config": () => require('./cfg'),
+  "--set":    () => require('./set'),
+  "--code":   () => require('./strat'),
+  "--clear":  () => require('./clear'),
+  "--test":   () => require('./test'),
+}
+
 if(!arg) {
   require('./bot');
 }
 
-// Show help
-else if (arg === '--help') {
-  require('./help');
+else if(commands[arg]) {
+  commands[arg]();
 }
 
-// Open config
-else if (arg === '--config') {
-  require('./cfg');
-}
-
-// Set variables
-else if (arg === '--set') {
-  require('./set');
-}
-
-// Show strategy
-else if (arg === '--code') {
-  require('./strat');
-}
-
-// Clear strategy
-else if (arg === '--clear') {
-  require('./clear');
-}
-
-// Test the bot
-else if (arg === '--test') {
-  require('./test');
-}
-
-// AI assistant
-else if (process.argv?.slice(2)?.join(" ")?.split(" ")?.length > 2) {
+else if (process.argv?.slice(2)?.join(" ")?.split(" ")?.length > 1) {
   require('./ai');
 }
 
-// Show help
 else{
   require('./help');
 }
