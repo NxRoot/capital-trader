@@ -21,6 +21,11 @@ else if (arg === '--set') {
   require('./set');
 }
 
+// Show strategy
+else if (arg === '--code') {
+  require('./strat');
+}
+
 // Clear strategy
 else if (arg === '--clear') {
   require('./clear');

@@ -68,6 +68,8 @@ const main = async () => {
     require('./test')
 
     await delay(3000);
+
+    console.log(`Config File: ${configPath}\n`)
     
     // ask user if wants to keep this strategy using readline
     rl.question("Do you want to keep this strategy? (y/n): ", (answer) => {

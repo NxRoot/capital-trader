@@ -54,9 +54,9 @@ Edit `~/.capital/config.json`
 | `environment` | `"demo"` or `"live"` | `"demo"` |
 | `epic` | Market identifier | `"BTCUSD"`, `"EURUSD"` |
 | `orderSize` | Position size per trade | `"0.025"` |
-| `timeframe` | Candle interval | `"MINUTE_15"`, `"MINUTE_5"` |
+| `timeframe` | Candle interval | `"MINUTE_15"`, `"MINUTE"` |
 | `max` | Historical candles to fetch | `"1000"` |
-| `tokens` | Max AI tokens to use | `"10000"` |
+| `tokens` | Max AI tokens to use | `"15000"` |
 | `retries` | Max AI generation retries | `"3"` |
 
 
@@ -68,6 +68,9 @@ capital
 
 # Show help
 capital --help
+
+# Show strategy
+capital --code
 
 # Test strategy
 capital --test
@@ -106,6 +109,7 @@ src/
 ├── ai.js               # AI strategy generation and validation
 ├── cfg.js              # Display config path and values
 ├── test.js             # Backtesting and dashboard generation
+├── strat.js            # Display raw code strategy
 ├── help.js             # Display help instructions
 ├── set.js              # Config setter
 ├── clear.js            # Strategy reset
