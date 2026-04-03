@@ -17,10 +17,10 @@ const missing  = () => {
     console.log("\x1b[31mMISSING CAPITAL CREDENTIALS\x1b[0m\n")
     console.log(`Config File: ${configPath}`)
     console.log("")
-    console.log("capital set username YOUR_CAPITAL_USERNAME")
-    console.log("capital set password YOUR_CAPITAL_PASSWORD")
-    console.log("capital set apiKey YOUR_CAPITAL_API_KEY")
-    console.log("capital set anthropicKey YOUR_ANTHROPIC_API_KEY")
+    console.log("capital --set username YOUR_CAPITAL_USERNAME")
+    console.log("capital --set password YOUR_CAPITAL_PASSWORD")
+    console.log("capital --set apiKey YOUR_CAPITAL_API_KEY")
+    console.log("capital --set anthropicKey YOUR_ANTHROPIC_API_KEY")
     console.log("")
     process.exit(0);
 }
