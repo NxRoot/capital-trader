@@ -1,6 +1,6 @@
 {
   "name": "capital-trader",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An automated trading bot for Capital.com with AI-powered strategy generation via Claude or ChatGPT.",
   "main": "src/cli.js",
   "bin": {
