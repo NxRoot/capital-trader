@@ -7,6 +7,9 @@ capital
 ${header("Show help")}
 capital --help
 
+${header("Show strategy")}
+capital --code
+
 ${header("Test strategy")}
 capital --test
 
