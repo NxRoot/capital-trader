@@ -5,16 +5,16 @@ ${header("Start bot")}
 capital
 
 ${header("Show help")}
-capital help
+capital --help
 
 ${header("Test strategy")}
-capital test
+capital --test
 
 ${header("Get config path")}
-capital config
+capital --config
 
 ${header("Set config value")}
-capital set orderSize 0.005
+capital --set orderSize 0.005
 
 ${header("Reset strategy")}
-capital clear`)
+capital --clear`)

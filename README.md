@@ -67,19 +67,19 @@ Edit `~/.capital/config.json`
 capital
 
 # Show help
-capital help
+capital --help
 
 # Test strategy
-capital test
+capital --test
 
 # Get config path
-capital config
+capital --config
 
 # Set config value
-capital set orderSize 0.005
+capital --set orderSize 0.005
 
 # Reset strategy
-capital clear
+capital --clear
 ```
 
 ## AI Strategy Generation

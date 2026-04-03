@@ -7,7 +7,7 @@
     "capital": "src/cli.js"
   },
   "scripts": {
-    "release": "npm version patch && npm publish"
+    "release": "npm version patch && npm publish && git push && git push --tags"
   },
   "files": [
     "src/",
