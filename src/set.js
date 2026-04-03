@@ -8,4 +8,4 @@ const config = conf()
 config[key] = val
 
 writeFileSync(configPath, JSON.stringify(config, null, 2))
-console.log(`\nVariable '${key}' set to '${val}'\n`)
+console.log(`\nVariable '${key}' set to '${val}'`)

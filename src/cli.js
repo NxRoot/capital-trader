@@ -6,7 +6,7 @@ if(!arg) {
   require('./bot');
 }
 
-// Show Help
+// Show help
 else if (arg === '--help') {
   require('./help');
 }
@@ -37,6 +37,11 @@ else if (arg === '--test') {
 }
 
 // AI assistant
-else {
+else if (process.argv?.slice(2)?.join(" ")?.split(" ")?.length > 2) {
   require('./ai');
+}
+
+// Show help
+else{
+  require('./help');
 }
