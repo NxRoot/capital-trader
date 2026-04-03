@@ -87,11 +87,15 @@ capital --clear
 Pass any natural language instruction to the CLI:
 
 ```bash
+capital "create a good strategy based on macd and rsi"
+capital "add custom take profit on price * 1.001"
 capital "make the strategy more conservative"
-capital "only trade during strong trend conditions"
+capital "only open orders on red candles"
 ```
 
 If the new strategy underperforms, it is automatically discarded. 
+
+Strategy is saved inside `config.json` file.
 
 ## Project Structure
 
