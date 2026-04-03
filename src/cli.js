@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const arg = process.argv[2];
+const txt = process.argv?.slice(2)?.join(" ")
 
 const commands = {
   "--help":   () => require('./help'),
@@ -18,10 +19,10 @@ else if(commands[arg]) {
   commands[arg]();
 }
 
-else if (process.argv?.slice(2)?.join(" ")?.split(" ")?.length > 1) {
+else if (txt?.split(" ")?.length > 1) {
   require('./ai');
 }
 
-else{
+else {
   require('./help');
 }
