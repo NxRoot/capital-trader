@@ -66,6 +66,9 @@ Edit `~/.capital/config.json`
 # Start bot
 capital
 
+# Show help
+capital help
+
 # Test strategy
 capital test
 
@@ -97,8 +100,9 @@ src/
 ├── cli.js              # Entry point and command router
 ├── bot.js              # Live trading loop
 ├── ai.js               # AI strategy generation and validation
-├── cfg.js              # Output config path and values
+├── cfg.js              # Display config path and values
 ├── test.js             # Backtesting and dashboard generation
+├── help.js             # Display help instructions
 ├── set.js              # Config setter
 ├── clear.js            # Strategy reset
 └── utils/

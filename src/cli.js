@@ -6,6 +6,11 @@ if(!arg) {
   require('./bot');
 }
 
+// Show Help
+else if (arg === 'help') {
+  require('./help');
+}
+
 // Open config
 else if (arg === 'config') {
   require('./cfg');
