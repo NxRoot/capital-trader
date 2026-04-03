@@ -17,27 +17,21 @@ const missing  = (keys) => {
     console.log("\x1b[31mMISSING CAPITAL CREDENTIALS\x1b[0m\n")
     console.log(`Config File: ${configPath}`)
     console.log("")
-    for(const key of keys) {
-        console.log(`\x1b[33m${key}\x1b[0m is required but not set.`)
-    }
+    for(const key of keys) console.log(`\x1b[33m${key}\x1b[0m is required but not set.`)
     console.log("")
-    for(const key of keys) {
-        console.log(`Set it with: \x1b[32mcapital --set ${key} YOUR_${key.toUpperCase()}\x1b[0m`)
-    }
+    for(const key of keys) console.log(`Set it with: \x1b[32mcapital --set ${key} YOUR_${key.toUpperCase()}\x1b[0m`)
     console.log("")
     process.exit(0);
 }
 
 const conf = (required = []) => {
-    const opt = required?.[0] === "optional";
-    const keys = ["username", "password", "apiKey", ...required]
     if (!existsSync(configPath)) {
         mkdirSync(configDir, { recursive: true });
         copyFileSync(join(__dirname, '..', '..', 'config.json'), configPath);
     }
     const res = JSON.parse(readFileSync(configPath, 'utf-8'));
-    if(!opt && !keys.every(k => res[k])) {
-        missing(keys)
+    if(!required?.every(k => res?.[k])) {
+        missing(required)
     }
     return res;
 }

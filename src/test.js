@@ -11,7 +11,7 @@ const { conf, delay, configDir } = require('./utils/constant');
 // #                 Global Variables               #
 // ##################################################
 
-const config = conf()
+const config = conf(["username", "password", "apiKey"])
 const tokens = { apiKey: config?.apiKey }
 
 
