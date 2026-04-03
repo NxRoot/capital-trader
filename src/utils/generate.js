@@ -92,9 +92,9 @@ back                        // number of bars used for trend
 
 3. Combinations (data[i-index] might be undefined, always use ?. to check if it is defined)
 
-data?.[i]                     // current bar values
-data?.[i-1]                   // previous bar values
-data?.[i]?.['close']          // current bar value -> [ 'open' 'high' 'low' 'close' ]
+data?.[i]                   // current bar values
+data?.[i-1]                 // previous bar values
+data?.[i]?.['close']        // current bar value -> [ 'open' 'high' 'low' 'close' ]
 
 
 Respond ONLY with RAW JSON format:
