@@ -12,27 +12,32 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const configDir = join(homedir(), '.capital');
 const configPath = join(configDir, 'config.json');
 
-const missing  = () => {
+const missing  = (keys) => {
     console.log("")
     console.log("\x1b[31mMISSING CAPITAL CREDENTIALS\x1b[0m\n")
     console.log(`Config File: ${configPath}`)
     console.log("")
-    console.log("capital --set username YOUR_CAPITAL_USERNAME")
-    console.log("capital --set password YOUR_CAPITAL_PASSWORD")
-    console.log("capital --set apiKey YOUR_CAPITAL_API_KEY")
-    console.log("capital --set anthropicKey YOUR_ANTHROPIC_API_KEY")
+    for(const key of keys) {
+        console.log(`\x1b[33m${key}\x1b[0m is required but not set.`)
+    }
+    console.log("")
+    for(const key of keys) {
+        console.log(`Set it with: \x1b[32mcapital --set ${key} YOUR_${key.toUpperCase()}\x1b[0m`)
+    }
     console.log("")
     process.exit(0);
 }
 
-const conf = (force = false) => {
+const conf = (required = []) => {
+    const opt = required?.[0] === "optional";
+    const keys = ["username", "password", "apiKey", ...required]
     if (!existsSync(configPath)) {
         mkdirSync(configDir, { recursive: true });
         copyFileSync(join(__dirname, '..', '..', 'config.json'), configPath);
     }
     const res = JSON.parse(readFileSync(configPath, 'utf-8'));
-    if(!force && (!res.username || !res.password || !res.apiKey || !res.anthropicKey)) {
-        missing()
+    if(!opt && !keys.every(k => res[k])) {
+        missing(keys)
     }
     return res;
 }

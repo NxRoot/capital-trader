@@ -12,7 +12,7 @@ const { delay, conf, configDir, configPath } = require('./utils/constant');
 // #                 Global Variables               #
 // ##################################################
 
-const config = conf()
+const config = conf(["anthropicKey"]);
 const backupPath = join(configDir, 'config-backup.json');
 const tokens = { apiKey: config?.apiKey }
 

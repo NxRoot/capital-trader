@@ -1,5 +1,5 @@
 const { configPath, conf } = require('./utils/constant');
-const config = conf(true);
+const config = conf(["optional"]);
 delete config.strategyCode;
 console.log("")
 console.log(`Config File: ${configPath}`)
