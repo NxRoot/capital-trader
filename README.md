@@ -2,7 +2,7 @@
 
 An automated trading bot for [Capital.com](https://capital.com) with AI-powered strategy generation via Claude or ChatGPT.
 
-<img width="100%" height="100%" alt="dash" src="https://github.com/user-attachments/assets/5acc4b29-b468-452a-b89f-7959340e0332" />
+<img width="100%" height="100%" alt="dashboard" src="https://github.com/user-attachments/assets/8e64224c-7dd6-4038-8665-b33669eff8a1" />
 
 ## Features
 
