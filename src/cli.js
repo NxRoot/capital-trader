@@ -3,12 +3,12 @@ const arg = process.argv[2];
 const txt = process.argv?.slice(2)?.join(" ")
 
 const commands = {
-  "--help":   () => require('./help'),
-  "--config": () => require('./cfg'),
-  "--set":    () => require('./set'),
-  "--code":   () => require('./strat'),
-  "--clear":  () => require('./clear'),
-  "--test":   () => require('./test'),
+  "--help"   :  './help',
+  "--config" :  './cfg',
+  "--set"    :  './set',
+  "--code"   :  './strat',
+  "--clear"  :  './clear',
+  "--test"   :  './test',
 }
 
 if(!arg) {
@@ -16,7 +16,7 @@ if(!arg) {
 }
 
 else if(commands[arg]) {
-  commands[arg]();
+  require(commands[arg]);
 }
 
 else if (txt?.split(" ")?.length > 1) {
