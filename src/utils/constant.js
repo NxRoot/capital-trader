@@ -31,7 +31,7 @@ const conf = (required = []) => {
     }
     const res = JSON.parse(readFileSync(configPath, 'utf-8'));
     if(!required?.every(k => res?.[k])) {
-        missing(required)
+        missing(required?.filter(k => !res?.[k]));
     }
     return res;
 }

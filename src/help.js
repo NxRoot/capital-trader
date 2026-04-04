@@ -20,4 +20,5 @@ ${header("Set config value")}
 capital --set orderSize 0.005
 
 ${header("Reset strategy")}
-capital --clear`)
+capital --clear
+`)
