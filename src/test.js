@@ -129,6 +129,7 @@ function generateDashboard(data) {
     const { meta, account, metrics, trades, equityCurve, candles } = data
 
     // Build markers for lightweight-charts
+    const tzOffset = new Date().getTimezoneOffset() * 60
     let index = 0;
     const markers = []
     for (const trade of trades) {
@@ -138,7 +139,7 @@ function generateDashboard(data) {
         index++;
         // Open marker
         markers.push({
-            time: Math.floor(trade.openTime / 1000),
+            time: Math.floor(trade.openTime / 1000) - tzOffset,
             position: isBuy ? 'belowBar' : 'aboveBar',
             color: isBuy ? '#00e676' : '#ff1744',
             shape: isBuy ? 'arrowUp' : 'arrowDown',
@@ -148,7 +149,7 @@ function generateDashboard(data) {
 
         // Close marker
         markers.push({
-            time: Math.floor(trade.closeTime / 1000),
+            time: Math.floor(trade.closeTime / 1000) - tzOffset,
             position: isWin ? 'aboveBar' : 'belowBar',
             color: isWin ? '#00e676' : '#ff1744',
             shape: isWin ? 'circle' : 'square',
@@ -160,7 +161,7 @@ function generateDashboard(data) {
 
     // Candle data for lightweight-charts (seconds)
     const chartCandles = candles.map(c => ({
-        time: Math.floor(c.timestamp / 1000),
+        time: Math.floor(c.timestamp / 1000) - tzOffset,
         open: c.open,
         high: c.high,
         low: c.low,
