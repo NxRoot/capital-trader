@@ -1,6 +1,29 @@
 {
-  "name": "next-trader",
-  "version": "0.1.0",
+  "name": "capital-trader",
+  "version": "1.0.20",
+  "description": "An automated trading bot for Capital.com with chart, indicators and strategy builder.",
+  "keywords": [
+    "capital",
+    "trading",
+    "bot",
+    "chart",
+    "indicators",
+    "strategy",
+    "dashboard",
+    "trading-bot",
+    "trading-strategy",
+    "capital.com"
+  ],
+  "license": "MIT",
+  "author": "NxRoot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NxRoot/capital-trader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NxRoot/capital-trader/issues"
+  },
+  "homepage": "https://github.com/NxRoot/capital-trader#readme",
   "private": false,
   "main": "server.js",
   "bin": {
@@ -25,7 +48,8 @@
     "start": "next start",
     "prebuild": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\"",
     "posttypings": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/types/index.d.ts'); const original = 'export as namespace klinecharts;'; const addon = 'export declare const indicators: any[];\\n' + original; if(!readFileSync(file, 'utf-8').includes('export declare const indicators: any[];')) writeFileSync(file, readFileSync(file, 'utf-8').replace(original, addon));\"",
-    "postinstall": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/dist/klinecharts.js'); const original = 'exports.version = version;'; const addon = original + '\\nexports.indicators = extensions\\x242;'; writeFileSync(file.replace('.js', '.min.js'), readFileSync(file, 'utf-8').replace(original, addon));\" && npm run posttypings"
+    "postinstall": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/dist/klinecharts.js'); const original = 'exports.version = version;'; const addon = original + '\\nexports.indicators = extensions\\x242;'; writeFileSync(file.replace('.js', '.min.js'), readFileSync(file, 'utf-8').replace(original, addon));\" && npm run posttypings",
+    "release": "npm version patch && git push && git push --tags && npm publish"
   },
   "dependencies": {
     "chart.js": "^4.4.0",
