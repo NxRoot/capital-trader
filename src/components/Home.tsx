@@ -36,9 +36,7 @@ export default function Home({ cfg }: { cfg: any }) {
       const result = await CapitalPrices(config, config)
       const { marketDetails } = await CapitalMarkets(config, { epics: config?.epic })
       setOpeningHours(marketDetails?.[0]?.instrument?.openingHours)
-      setCandles((result?.prices || []).map(toCandle)
-        // ?.filter(c => new Date(c?.timestamp)?.getTime() <= new Date("2026-04-24T17:59").getTime())
-      )
+      setCandles((result?.prices || []).map(toCandle))
     } catch (err) {
       console.error(err)
     }
@@ -70,6 +68,10 @@ export default function Home({ cfg }: { cfg: any }) {
     setCloseGroups(c?.closeGroups ?? DEFAULT_CONFIG.closeGroups)
     setOpenConnection(c?.openConnection ?? DEFAULT_CONFIG.openConnection)
     setCloseConnection(c?.closeConnection ?? DEFAULT_CONFIG.closeConnection)
+  }
+
+  const handleBack = (n = 1) => {
+    setCandles(candles.slice(0, -n))
   }
 
   const editConfig = (cc) => {
@@ -118,6 +120,12 @@ export default function Home({ cfg }: { cfg: any }) {
             ))}
           </div>
           <div className="flex-1"></div>
+          <div title="BackBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => handleBack(10)}>
+          {"<<"}
+          </div>
+          <div title="Back" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => handleBack(1)}>
+          {"<"}
+          </div>
           <div title="Bot server" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => setOpen("push")}>
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-database-zap-icon lucide-database-zap"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 15 21.84" /><path d="M21 5V8" /><path d="M21 12L18 17H22L19 22" /><path d="M3 12A9 3 0 0 0 14.59 14.87" /></svg>
           </div>
