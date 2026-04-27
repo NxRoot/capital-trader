@@ -42,10 +42,9 @@
     "server.js"
   ],
   "scripts": {
-    "dev": "next dev -p 5001",
     "build": "next build",
-    "pack": "next build && npm pack",
-    "start": "next start",
+    "pack": "npm run build && npm pack",
+    "start": "npm run build && node server.js",
     "prebuild": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\"",
     "posttypings": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/types/index.d.ts'); const original = 'export as namespace klinecharts;'; const addon = 'export declare const indicators: any[];\\n' + original; if(!readFileSync(file, 'utf-8').includes('export declare const indicators: any[];')) writeFileSync(file, readFileSync(file, 'utf-8').replace(original, addon));\"",
     "postinstall": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/dist/klinecharts.js'); const original = 'exports.version = version;'; const addon = original + '\\nexports.indicators = extensions\\x242;'; writeFileSync(file.replace('.js', '.min.js'), readFileSync(file, 'utf-8').replace(original, addon));\" && npm run posttypings",
@@ -63,7 +62,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

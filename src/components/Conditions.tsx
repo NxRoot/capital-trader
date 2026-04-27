@@ -1,7 +1,7 @@
 export type ConditionType = "open" | "close";
 export type FieldType = "CLOSE" | "OPEN" | "HIGH" | "LOW" | "LAST" | "COST" | "HOLD" | "PROFIT" | "INDICATOR";
 export type OperatorType = "BIGGER" | "SMALLER" | "EQUAL" | "NOT_EQUAL" | "BIGGER_EQUAL" | "SMALLER_EQUAL";
-export type ValueType = "COST" | "HOLD" | "PROFIT" | "NUMBER" | "RED" | "GREEN" | "INDICATOR";
+export type ValueType = "COST" | "HOLD" | "PROFIT" | "NUMBER" | "CLOSE" | "RED" | "GREEN" | "INDICATOR";
 export type ArithmeticOpType = "+" | "-" | "*" | "/";
 
 export interface Condition {
@@ -125,6 +125,7 @@ const FIELD_SELECT_OPTIONS = [
 // Combined value options: NUMBER, COST, HOLD, PROFIT, RED, GREEN + all indicators
 const VALUE_SELECT_OPTIONS = [
     { value: "NUMBER", label: "NUMBER" },
+    { value: "CLOSE", label: "CLOSE" },
     { value: "COST", label: "COST" },
     { value: "HOLD", label: "HOLD" },
     { value: "PROFIT", label: "PROFIT" },
@@ -208,7 +209,7 @@ function ConditionRow({
                 valueType: newValueType,
                 valueIndicatorName: undefined,
                 valueIndicatorOffset: undefined,
-                value: newValueType === "COST" || newValueType === "HOLD" || newValueType === "PROFIT" || newValueType === "RED" || newValueType === "GREEN" ? "" : condition.value,
+                value: newValueType === "COST" || newValueType === "HOLD" || newValueType === "PROFIT" || newValueType === "RED" || newValueType === "GREEN" ? "" : (newValueType === "CLOSE" ? "0" : condition.value),
             };
             // Reset arithmetic fields if not COST
             if (newValueType !== "COST") {
@@ -280,6 +281,17 @@ function ConditionRow({
                     onChange={(e) => onChange({ ...condition, value: e.target.value })}
                     placeholder="0"
                     className="w-16 rounded-0 border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300/30"
+                />
+            )}
+
+            {condition.valueType === "CLOSE" && (
+                <input
+                    type="number"
+                    min="0"
+                    value={condition.value}
+                    onChange={(e) => onChange({ ...condition, value: e.target.value })}
+                    placeholder="0"
+                    className="w-12 rounded-0 border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300/30"
                 />
             )}
 
@@ -532,7 +544,7 @@ export function Conditions({
     onCloseGroupsChange,
 }: ConditionsProps) {
     return (
-        <div className="flex flex-col flex-1 p-4 overflow-y-auto">
+        <>
             <ConditionSection
                 title="Open Conditions"
                 groups={openGroups}
@@ -547,6 +559,6 @@ export function Conditions({
                 connection={closeConnection}
                 onConnectionChange={onCloseConnectionChange}
             />
-        </div>
+        </>
     );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface PushProps {
@@ -14,50 +14,7 @@ interface PushProps {
 const PushConfig: React.FC<PushProps> = ({ config, onSave, onClose, openGroups, closeGroups, openConnection, closeConnection }) => {
     const [loading, setLoading] = useState("");
     const [logs, setLogs] = useState([]);
-
-    const pushToServer = async () => {
-        if (loading) return;
-        setLoading("push");
-        try {
-            const result = await fetch("/config", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...config, openGroups, closeGroups, openConnection, closeConnection }, null, 2)
-            })
-            if (!result.ok) { 
-                alert("Failed to push config to server"); 
-            }else {
-                onSave(config);
-                onClose();
-            }
-        } catch (err) {
-            console.error(err)
-            const message = err instanceof Error ? err.message : String(err)
-            alert("Failed to push config to server:\nError: " + message)
-        }
-        setLoading("");
-    }
-
-    const getConfigFromServer = async () => {
-        if (loading) return;
-        setLoading("get");
-        try {
-            const result = await fetch("/config")
-            if (!result.ok) { 
-                alert("Failed to get config from server"); 
-            }else {
-                const data = await result.json();
-                if(data?.config) onSave(data?.config);
-                onClose();
-            }
-        }
-        catch (err) {
-            console.error(err)
-            const message = err instanceof Error ? err.message : String(err)
-            alert("Failed to get config from server:\nError: " + message)
-        }
-        setLoading("");
-    }
+    const logsRef = useRef<HTMLDivElement>(null);
 
     const stopServer = async () => {
         if (loading) return;
@@ -85,7 +42,7 @@ const PushConfig: React.FC<PushProps> = ({ config, onSave, onClose, openGroups, 
             const result = await fetch("/api/start", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(config, null, 2)
+                body: JSON.stringify({ ...config, openGroups, closeGroups, openConnection, closeConnection }, null, 2)
             })
             if (!result.ok) { 
                 alert("Failed to start server"); 
@@ -137,12 +94,6 @@ const PushConfig: React.FC<PushProps> = ({ config, onSave, onClose, openGroups, 
                         Send action to server bot
                     </div>
                     <div className="flex items-center gap-2">
-                    {/* <button disabled={loading !== ""} className="flex-1 w-full h-10 rounded-0 flex items-center justify-center text-sm cursor-pointer px-3 py-2 text-sm font-semibold bg-zinc-800 text-zinc-200 hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={getConfigFromServer}>
-                        {loading === "get" ? <div className="w-4 h-4 border-2 border-zinc-100 border-t-transparent rounded-full animate-spin"></div> : <span>GET</span>}
-                    </button>
-                    <button disabled={loading !== ""} className="flex-1 w-full h-10 rounded-0 flex items-center justify-center text-sm cursor-pointer px-3 py-2 text-sm font-semibold bg-zinc-800 text-zinc-200 hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={pushToServer}>
-                        {loading === "push" ? <div className="w-4 h-4 border-2 border-zinc-100 border-t-transparent rounded-full animate-spin"></div> : <span>POST</span>}
-                    </button> */}
                     <button disabled={loading !== ""} className="flex-1 w-full h-10 rounded-0 flex items-center justify-center text-sm cursor-pointer px-3 py-2 text-sm font-semibold bg-zinc-800 text-zinc-200 hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={stopServer}>
                         {loading === "stop" ? <div className="w-4 h-4 border-2 border-zinc-100 border-t-transparent rounded-full animate-spin"></div> : <span>STOP</span>}
                     </button>
@@ -153,23 +104,21 @@ const PushConfig: React.FC<PushProps> = ({ config, onSave, onClose, openGroups, 
                 </div>
 
                 <div className="pt-2 space-y-2 flex flex-col min-h-0">
-                    {/* <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <span className={`inline-block w-2 h-2 rounded-full bg-emerald-500`}></span>
-                            <span className="text-sm font-semibold text-zinc-300">Console</span>
-                        </div>
-                        <button className="text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer px-2 py-1 hover:bg-white/5">Clear</button>
-                    </div> */}
-
-                    <div className="bg-black border border-[#272727] h-72 overflow-y-auto font-mono text-[11px] p-2 leading-relaxed">
+                    <div ref={logsRef} className="bg-black border border-[#272727] h-72 overflow-y-auto font-mono text-[11px] p-2 leading-relaxed">
                         {logs.length === 0 ? (
-                            <div className="text-zinc-600">Waiting for messages...</div>
-                        ) : logs.map(entry => (
-                            <div key={entry.timestamp} className="whitespace-pre-wrap break-all">
-                                <span className="text-zinc-500">{new Date(entry.timestamp).toLocaleTimeString()}</span>
-                                <span className="ml-2 text-zinc-200">{entry.text}</span>
-                            </div>
-                        ))}
+                            <div className="text-zinc-500">Waiting for messages...</div>
+                        ) : logs.map(entry => {
+                            const isError = entry?.text?.includes("[ERROR]");
+                            const isOpen = entry?.text?.includes("[OPEN-");
+                            const isClose = entry?.text?.includes("[CLOSE-");
+                            const color = isError ? "text-red-500" : isOpen ? "text-[deepskyblue]" : isClose ? "text-[gold]" : "text-zinc-200";
+                            return (
+                                <div key={entry?.timestamp} className="whitespace-pre-wrap break-all">
+                                    <span className="text-zinc-400">{new Date(entry?.timestamp).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+                                    <span className={`ml-2 ${color}`}>{entry?.text}</span>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
                 

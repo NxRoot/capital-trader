@@ -30,17 +30,53 @@ export default function Home({ cfg }: { cfg: any }) {
   const [config, setConfig] = useState<any>(cfg);
   const [candles, setCandles] = useState<any[]>([]);
   const [open, setOpen] = useState("");
+  const [initial, setInitial] = useState<any[]>([]);
+  const [idx, setIdx] = useState(0);
+  // const [mode, setMode] = useState("easy");
+  // const [text, setText] = useState("");
+  // const [loading, setLoading] = useState(false);
+  // const [strategies, setStrategies] = useState<any[]>([]);
 
   const fetchPrices = useCallback(async () => {
     try {
       const result = await CapitalPrices(config, config)
       const { marketDetails } = await CapitalMarkets(config, { epics: config?.epic })
       setOpeningHours(marketDetails?.[0]?.instrument?.openingHours)
-      setCandles((result?.prices || []).map(toCandle))
+      const c = (result?.prices || []).map(toCandle)
+      setInitial(c)
+      setCandles(c)
+      setIdx(c.length)
     } catch (err) {
       console.error(err)
     }
   }, [config])
+
+  // const generateAiCode = async () => {
+  //   if (!text || text.trim() === "") return;
+  //   setLoading(true);
+  //   await fetch("/api/ai", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ ...config, text, first: strategies.length === 0 }),
+  //   }).then(res => res.json()).then(data => {
+  //     if (data?.ok) {
+  //       setStrategies(prev => [...prev, { text: text, code: data.data, date: new Date().getTime() }])
+  //       setText("")
+  //     }
+  //   }).catch(err => {
+  //     console.error(err)
+  //   }).finally(() => {
+  //     setLoading(false)
+  //   })
+  // }
+
+  // const onEnterPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  //   if (e.key === 'Enter' && !e.shiftKey) {
+  //     e.preventDefault()
+  //     e.stopPropagation()
+  //     generateAiCode()
+  //   }
+  // }
 
   const resetChanges = () => {
     editConfig({
@@ -55,6 +91,8 @@ export default function Home({ cfg }: { cfg: any }) {
     setCloseGroups(cfg?.closeGroups ?? DEFAULT_CONFIG.closeGroups)
     setOpenConnection(cfg?.openConnection ?? DEFAULT_CONFIG.openConnection)
     setCloseConnection(cfg?.closeConnection ?? DEFAULT_CONFIG.closeConnection)
+    // setStrategies([])
+    // setText("")
   }
 
   const handleImportConfig = async () => {
@@ -70,8 +108,12 @@ export default function Home({ cfg }: { cfg: any }) {
     setCloseConnection(c?.closeConnection ?? DEFAULT_CONFIG.closeConnection)
   }
 
-  const handleBack = (n = 1) => {
-    setCandles(candles.slice(0, -n))
+  const moveIndex = (n = 1) => {
+    let i = idx + n
+    if (candles.length + n >= initial.length) i = initial.length
+    if (candles.length === 0) return
+    setIdx(i)
+    setCandles(initial.slice(0, i))
   }
 
   const editConfig = (cc) => {
@@ -120,11 +162,17 @@ export default function Home({ cfg }: { cfg: any }) {
             ))}
           </div>
           <div className="flex-1"></div>
-          <div title="BackBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => handleBack(10)}>
-          {"<<"}
+          <div title="BackBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(-10)}>
+            {"<<"}
           </div>
-          <div title="Back" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => handleBack(1)}>
-          {"<"}
+          <div title="Back" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(-1)}>
+            {"<"}
+          </div>
+          <div title="Forward" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(1)}>
+            {">"}
+          </div>
+          <div title="ForwardBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(10)}>
+            {">>"}
           </div>
           <div title="Bot server" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => setOpen("push")}>
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-database-zap-icon lucide-database-zap"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 15 21.84" /><path d="M21 5V8" /><path d="M21 12L18 17H22L19 22" /><path d="M3 12A9 3 0 0 0 14.59 14.87" /></svg>
@@ -137,7 +185,7 @@ export default function Home({ cfg }: { cfg: any }) {
           </div>
         </div>
         <div className="flex-1 p-2 pr-3">
-          <Chart data={candles} cfg={{...config, openingHours}} indicatorsList={indicators} onStatsChange={setStats} />
+          <Chart data={candles} cfg={{ ...config, openingHours }} indicatorsList={indicators} onStatsChange={setStats} />
         </div>
       </div>
 
@@ -150,12 +198,12 @@ export default function Home({ cfg }: { cfg: any }) {
         </div>
         <div className="overflow-auto h-full text-sm pb-20">
 
-          <div className="flex items-center justify-between border-b border-zinc-800 p-3 cursor-pointer select-none select-none" onClick={() => editConfig({ direction: config.direction === 'BUY' ? 'SELL' : 'BUY' })}>
+          <div className="flex items-center justify-between border-b border-zinc-800 p-3 cursor-pointer select-none select-none" onClick={() => editConfig({ direction: config?.direction === 'BUY' ? 'SELL' : 'BUY' })}>
             <div>Direction</div>
-            <div className={`text-green-500 ${config.direction === 'BUY' ? 'text-green-500' : 'text-red-500'}`}>{config.direction.toUpperCase()}</div>
+            <div className={`text-green-500 ${config?.direction === 'BUY' ? 'text-green-500' : 'text-red-500'}`}>{config?.direction?.toUpperCase()}</div>
           </div>
           <div className="flex items-center justify-between border-b border-zinc-800 p-3 relative">
-            <input type="number" className="absolute right-0 left-0 top-0 bottom-0 w-full text-right text-blue-400 pr-3 pl-25 focus:outline-none focus:ring-0 focus:border-none" value={config.orderSize} onChange={(e) => editConfig({ orderSize: e.target.value })} />
+            <input type="number" className="absolute right-0 left-0 top-0 bottom-0 w-full text-right text-blue-400 pr-3 pl-25 focus:outline-none focus:ring-0 focus:border-none" value={config?.orderSize} onChange={(e) => editConfig({ orderSize: e.target.value })} />
             <div>Order Size</div>
           </div>
           <div className="flex items-center justify-between border-b border-zinc-800 p-3 select-none">
@@ -164,7 +212,7 @@ export default function Home({ cfg }: { cfg: any }) {
           </div>
           <div className="flex border-b border-zinc-800 p-2 pb-1">
             {stats?.result?.length > 0 ? (
-              <Equity trades={stats?.result ?? []} orderSize={parseFloat(config.orderSize)} />
+              <Equity trades={stats?.result ?? []} orderSize={parseFloat(config?.orderSize)} />
             ) : (
               <div className="flex items-center justify-center h-40 w-full text-zinc-400">No trades to show</div>
             )}
@@ -199,7 +247,7 @@ export default function Home({ cfg }: { cfg: any }) {
               if (index % 2 === 0) {
                 const open = stats?.result[index]
                 const close = stats?.result[index + 1]
-                const value = (open.direction === 'BUY' ? close?.close - open?.close : open?.close - close?.close) * Number(config.orderSize)
+                const value = (open.direction === 'BUY' ? close?.close - open?.close : open?.close - close?.close) * Number(config?.orderSize)
                 const color = value > 0 ? 'text-green-500' : 'text-red-500'
                 if (close) return (
                   <div key={index} className="border-b border-zinc-900 text-[12px] text-zinc-300 p-2 py-2.5 flex items-center justify-between w-full gap-4">
@@ -236,36 +284,67 @@ export default function Home({ cfg }: { cfg: any }) {
       ) : null}
 
       {open === "push" ? (
-        <PushConfig 
-          config={cleanConfig({...config})} 
-          onSave={editConfig} 
-          onClose={() => setOpen("")} 
-          openGroups={openGroups} 
-          closeGroups={closeGroups} 
-          openConnection={openConnection} 
-          closeConnection={closeConnection} 
-        />
-      ) : null}
-
-      <Drawer open={open === "strategy"} onClose={() => setOpen("")}>
-        <div className="flex items-center justify-between border-b border-zinc-800 p-3 pr-2.5 gap-4.5">
-          <div className="flex-1 font-medium pl-2 text-md">Strategy Editor</div>
-          <div className="flex items-center justify-center gap-6">
-            <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleImportConfig}>Import</div>
-            <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleExportConfig}>Export</div>
-          </div>
-          <button onClick={() => setOpen("")} className="w-7 h-7 text-white text-sm  leading-none rounded-0 hover:bg-white/5 cursor-pointer mr-1">{"✕"}</button>
-        </div>
-        <Conditions
+        <PushConfig
+          config={cleanConfig({ ...config })}
+          onSave={editConfig}
+          onClose={() => setOpen("")}
           openGroups={openGroups}
           closeGroups={closeGroups}
           openConnection={openConnection}
           closeConnection={closeConnection}
-          onOpenConnectionChange={setOpenConnection}
-          onCloseConnectionChange={setCloseConnection}
-          onOpenGroupsChange={setOpenGroups}
-          onCloseGroupsChange={setCloseGroups}
         />
+      ) : null}
+
+      <Drawer open={open === "strategy"} onClose={() => setOpen("")}>
+        <div className="flex items-center justify-between border-b border-zinc-800 p-3 pr-2.5 gap-6">
+          <div className="font-medium pl-2 text-md">Strategy Editor</div>
+          <div className="flex-1"></div>
+          <div className="flex items-center justify-center gap-6">
+            <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleImportConfig}>Import</div>
+            <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleExportConfig}>Export</div>
+            {/* <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={() => setMode(prev => prev === "ai" ? "easy" : "ai")}>{mode === "ai" ? "Easy Mode" : "AI Mode"}</div> */}
+          </div>
+          <button onClick={() => setOpen("")} className="w-7 h-7 text-white text-sm  leading-none rounded-0 hover:bg-white/5 cursor-pointer mr-1">{"✕"}</button>
+        </div>
+        <div className="flex flex-col flex-1 p-4 overflow-y-auto relative">
+
+          {/* {
+            mode === "ai" ? (
+              <div className="flex flex-col gap-2 -m-4">
+                <div className="z-2 flex flex-row items-center justify-start gap-2 w-full px-5 py-2.5 bg-zinc-800/50 border-b border-zinc-800">
+                  <div className="text-sm font-medium text-purple-400 tracking-wide">AI Assistant: </div>
+                  <div className="text-sm font-normal text-zinc-300 tracking-wide">Write a new prompt to generate a new strategy</div>
+                </div>
+                <div className="flex flex-col gap-2 p-4">
+                  {strategies?.map((strategy: any) => (
+                    <div key={strategy.date} className="text-sm font-normal text-zinc-300 tracking-wide flex items-center justify-start gap-2 bg-zinc-800/50 p-4 hover:bg-zinc-800/70 cursor-pointer" onClick={() => setConfig(prev => ({ ...prev, strategyCode: strategy.code }))}>
+                      <div className={`inline-block w-2.5 h-2.5 mt-[1px] rounded-full ${strategy.code === config.strategyCode ? 'bg-emerald-500' : 'bg-red-500'} mr-2`}></div>
+                      <div className="text-sm font-normal text-zinc-300 tracking-wide max-w-full overflow-hidden text-ellipsis whitespace-nowrap flex-1">{strategy.text}</div>
+                      <div className="text-xs font-normal text-zinc-400 tracking-wide">{new Date(strategy.date).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : ( */}
+              <Conditions
+                openGroups={openGroups}
+                closeGroups={closeGroups}
+                openConnection={openConnection}
+                closeConnection={closeConnection}
+                onOpenConnectionChange={setOpenConnection}
+                onCloseConnectionChange={setCloseConnection}
+                onOpenGroupsChange={setOpenGroups}
+                onCloseGroupsChange={setCloseGroups}
+              />
+            {/* )} */}
+        </div>
+        {/* {
+          mode === "ai" ? (
+            <div className="flex items-center justify-between gap-3 p-4 px-3 border-t border-zinc-800 relative z-3">
+              <textarea disabled={loading} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onEnterPress} placeholder="Write your prompt here..." rows={8} className="w-full h-full resize-none rounded-0 border-none shadow-none bg-black/25 p-4 text-sm text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed" />
+            </div>
+          ) : null
+        } */}
         <div className="flex items-center justify-between gap-3 p-4 px-3 border-t border-zinc-800">
           <button disabled={config?.strategyCode === cfg?.strategyCode} className="flex-1 rounded-0 cursor-pointer px-4 py-3 text-sm font-semibold bg-zinc-700 text-zinc-200 hover:bg-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={saveChanges}>Save Changes</button>
           <button disabled={config?.strategyCode === cfg?.strategyCode} className="flex-1 rounded-0 cursor-pointer px-4 py-3 text-sm font-semibold bg-zinc-700 text-zinc-200 hover:bg-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={resetChanges}>Reset Changes</button>

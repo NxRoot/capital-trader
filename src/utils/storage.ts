@@ -15,7 +15,6 @@ export const DEFAULT_CONFIG = {
   closeGroups: [],
   openConnection: "AND",
   closeConnection: "AND",
-  indicators: []
 };
 
 export function loadConfig() {

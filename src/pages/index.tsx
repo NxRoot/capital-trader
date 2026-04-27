@@ -4,10 +4,7 @@ import Login from '@/components/Login'
 
 function App() {
   const [config, setConfig] = useState<any>(null)
-
-  if (!config?.cst || !config?.securityToken) {
-    return <Login onLogin={setConfig} />
-  }
+  if (!config?.cst || !config?.securityToken) return <Login onLogin={setConfig} />
   return <Home cfg={config} />
 }
 

@@ -32,6 +32,11 @@ function getValueExpression(condition: Condition): string {
   switch (condition.valueType) {
     case "NUMBER":
       return condition.value || "0";
+    case "CLOSE": {
+      const closeOffset = condition.value ? parseInt(condition.value, 10) : 0;
+      const closeIdx = closeOffset === 0 ? "i" : closeOffset > 0 ? `i-${closeOffset}` : `i+${Math.abs(closeOffset)}`;
+      return `data[${closeIdx}]?.['close']`;
+    }
     case "COST":
       // If arithmetic operations are specified, apply them
       if (condition.arithmeticOp && condition.arithmeticValue && condition.arithmeticValue !== "") {

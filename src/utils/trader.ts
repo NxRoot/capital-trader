@@ -32,12 +32,14 @@ export class TradingBot {
     reauth: any;
     openingHours: any;
 
+
     static getInstance(): TradingBot {
         if (!TradingBot.instance) {
             TradingBot.instance = new TradingBot();
         }
         return TradingBot.instance;
     }
+
 
     constructor() {
         if (TradingBot.instance) {
@@ -57,44 +59,53 @@ export class TradingBot {
         TradingBot.instance = this;
     }
 
+
     log(text: string) {
         console.log(`${new Date().toLocaleTimeString()}`, text)
         this.logs.push({ timestamp: new Date().getTime(), text })
     }
+
 
     setConfig(config: any) {
         this.config = config;
         writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
     }
 
+
     async openPosition(trade) {
         const order = await CapitalOpen(this.tokens, { epic: this.config.epic, direction: trade.direction, size: Number(this.config.orderSize) });
         if (!order.error && order?.dealId && trade?.direction) {
             this.open = { direction: trade.direction, price: order?.level, dealId: order?.dealId };
-            this.log(`[OPEN-${trade?.direction}] Price: ${order?.level?.toFixed(4)}`);
+            this.log(`[OPEN-${trade?.direction}] Price: ${order?.level?.toFixed(4)} | Size: ${Number(this.config.orderSize)}`);
         } else {
             this.log(`[ERROR] ${JSON.stringify(order.error)}`);
         }
     }
 
+
     async closePosition(price) {
         const order = await CapitalClose(this.tokens, this.open?.dealId);
         if (!order.error) {
-            const currentPrice = price * Number(this.config.orderSize);
+            const p = order?.level || price;
+            const currentPrice = p * Number(this.config.orderSize);
             const openPrice = this.open.price * Number(this.config.orderSize);
             const profit = this.open?.direction === "BUY" ? currentPrice - openPrice : openPrice - currentPrice;
-            this.log(`[CLOSE-${this.open?.direction}] Price: ${price?.toFixed(4)} | Profit: ${profit?.toFixed(2)}`);
+            this.log(`[CLOSE-${this.open?.direction}] Price: ${p?.toFixed(4)} | Profit: ${profit?.toFixed(2)}`);
             this.open = null;
         } else {
             this.log(`[ERROR] ${JSON.stringify(order.error)}`);
         }
     }
 
+
     async onUpdate(payload) {
 
         // Sync last candle
         if (payload?.timestamp === this.data?.[this.data?.length - 1]?.timestamp) {
-            return this.log(`[HOLD] Same timestamp, syncing...`);
+            this.data[this.data.length - 1]!.close = payload?.close;
+            this.data[this.data.length - 1]!.high = payload?.high;
+            this.data[this.data.length - 1]!.low = payload?.low;
+            return
         }
 
         // Add new candle
@@ -135,12 +146,12 @@ export class TradingBot {
         else this.log(`[HOLD] Looking to ${this.open?.dealId ? "CLOSE" : "OPEN"} trade...`);
     }
 
+
     async start() {
+
         if (!this.config?.apiKey || !this.config?.username || !this.config?.password) {
             return;
         }
-
-        this.log(`[START] Starting bot...`);
 
         // Close stream
         this.stream?.();
@@ -171,7 +182,6 @@ export class TradingBot {
             // Check if market is open
             if (getMarketStatus(new Date(), this.openingHours, 5) !== "open") {
                 this.log(`MARKET CLOSED for '${this.config?.epic}'`);
-                this.log(this.openingHours);
                 return;
             }
 
@@ -185,6 +195,12 @@ export class TradingBot {
             // Map prices to candles
             this.data = prices.map(toCandle);
 
+            // Log startup information
+            this.log(`[START] Size: ${Number(this.config?.orderSize)}`)
+            this.log(`[START] Epic: ${this.config?.epic}`)
+            this.log(`[START] Timeframe: ${this.config?.timeframe}`)
+            this.log(`[START] Environment: ${this.config?.environment}`)
+
         }
 
         // Start stream
@@ -193,6 +209,7 @@ export class TradingBot {
         // Reauthenticate in 8 minutes
         this.reauth = setTimeout(async () => { await delay(3000); this.start(); }, 8 * 60 * 1000);
     }
+
 
     stop() {
         this.log(`[STOP] Stopping bot...`);
