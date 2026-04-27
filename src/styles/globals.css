@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-screen bg-zinc-950 text-zinc-100 antialiased;
+  }
+}
+
+html, body, #__next, main {
+  height: 100dvh;
+  width: 100dvw;
+  overflow: hidden;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #202020;
+}
+::-webkit-scrollbar-thumb {
+  background: #303030;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #303030;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+select {
+  appearance: none;        /* Standard */
+  -webkit-appearance: none; /* Chrome, Safari */
+  -moz-appearance: none;    /* Firefox */
+  cursor: pointer;
+}
+
+select::-ms-expand {
+  display: none;
+}

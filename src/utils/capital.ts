@@ -1,4 +1,3 @@
-const { WebSocket } = require('ws');
 
 const CapitalURL = e => {
     if (e === "live") return "https://api-capital.backend-capital.com";
@@ -12,11 +11,62 @@ const headers = tokens => ({
     ...(tokens?.securityToken ? { "X-SECURITY-TOKEN": tokens?.securityToken } : {})
 })
 
-/**
- * Login to the Capital API and retrieve session tokens.
- * @returns {} An object containing the session tokens if successful, or an error if failed.
-*/
-const CapitalLogin = async (tokens, data) => {
+
+/** Capital prices to candle object. */
+export function toCandle(candle) {
+    const pick = (price) => price?.bid ?? price?.lastTraded ?? 0;
+    return {
+        open: pick(candle.openPrice),
+        high: pick(candle.highPrice),
+        low: pick(candle.lowPrice),
+        close: pick(candle.closePrice),
+        volume: candle?.lastTradedVolume,
+        timestamp: new Date(candle.snapshotTime).getTime(),
+    };
+}
+
+
+/** Capital stream to candle object. */
+function streamToCandle(candle) {
+    return {
+        open: candle?.o,
+        high: candle?.h,
+        low: candle?.l,
+        close: candle?.c,
+        volume: candle?.lastTradedVolume,
+        timestamp: new Date(candle?.t).getTime(),
+    };
+}
+
+/** Get market status from opening hours. */
+export const getMarketStatus = (now, hours, minutes = 10) => {
+    if (!hours) return "closed";
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const dayKey = days[now.getDay()];
+    const todayHours = hours[dayKey] || [];
+    for (const range of todayHours) {
+        const [startStr, endStr] = range.split(' - ');
+        const [sh, sm] = startStr.split(':').map(Number);
+        const [eh, em] = endStr.split(':').map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = (eh === 0 && em === 0) ? 1440 : eh * 60 + em;
+        // Open / closing
+        if (currentMinutes >= startMin && currentMinutes < endMin) {
+            if (endMin - currentMinutes <= minutes) return "closing";
+            return "open";
+        }
+        // Opening soon
+        if (currentMinutes < startMin && (startMin - currentMinutes) <= minutes) {
+            return "opening";
+        }
+    }
+    return "closed";
+};
+
+
+/** Login to the Capital API and retrieve session tokens. */
+export const CapitalLogin = async (tokens, data) => {
     const request = (await fetch(CapitalURL(tokens?.environment) + "/api/v1/session", {
         method: "POST",
         headers: headers(tokens),
@@ -29,24 +79,23 @@ const CapitalLogin = async (tokens, data) => {
     return { cst, securityToken, account: res }
 }
 
-/**
- * Get all open positions from Capital API.
- * @returns {} An object containing all open positions and their information.
-*/
-const CapitalPositions = async (tokens) => {
-    const res = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/positions", { headers: headers(tokens) })).json();
-    if (res?.errorCode) return { error: res };
-    return { positions: res?.positions }
-}
 
-/**
- * Get market bar values from Capital API.
- * @returns {} An object containing all bars for a specific market.
-*/
-const CapitalPrices = async (tokens, data) => {
+/** Get all markets or a single market from Capital API. */
+export const CapitalMarkets = async (tokens, data: { searchTerm?: string, epics?: string }) => {
     const params = new URLSearchParams();
+    if (data?.searchTerm) params.append("searchTerm", data?.searchTerm);
+    if (data?.epics) params.append("epics", data?.epics);
+    const res = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/markets?" + params, { headers: headers(tokens) })).json();
+    if (res?.errorCode) return { error: res };
+    return res;
+};
+
+
+/** Get market bar values from Capital API. */
+export const CapitalPrices = async (tokens, data) => {
+    const params = new URLSearchParams();
+    params.append("max", data?.max || "1000");
     if (data?.timeframe) params.append("resolution", data?.timeframe);
-    if (data?.max) params.append("max", data?.max.toString());
     if (data?.from) params.append("from", data?.from);
     if (data?.to) params.append("to", data?.to);
     const res = await (await fetch(CapitalURL(tokens?.environment) + `/api/v1/prices/${data.epic}?` + params, { headers: headers(tokens) })).json();
@@ -54,11 +103,9 @@ const CapitalPrices = async (tokens, data) => {
     return { prices: res?.prices }
 }
 
-/**
- * Open a market position from Capital API.
- * @returns {} An object containing order details.
-*/
-const CapitalOpen = async (tokens, data) => {
+
+/** Open a market position from Capital API. */
+export const CapitalOpen = async (tokens, data) => {
     const order = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/positions", { method: "POST", headers: headers(tokens), body: JSON.stringify(data) })).json();
     const confirmation = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/confirms/" + order?.dealReference, { headers: headers(tokens) })).json();
     if (order?.errorCode) return { error: order };
@@ -66,11 +113,9 @@ const CapitalOpen = async (tokens, data) => {
     return { order, dealId: confirmation?.affectedDeals?.[0]?.dealId, level: confirmation?.level }
 }
 
-/**
- * Close a market position from Capital API.
- * @returns {} An object containing order details.
-*/
-const CapitalClose = async (tokens, dealId) => {
+
+/** Close a market position from Capital API. */
+export const CapitalClose = async (tokens, dealId) => {
     const order = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/positions/" + dealId, { method: "DELETE", headers: headers(tokens) })).json();
     const confirmation = await (await fetch(CapitalURL(tokens?.environment) + "/api/v1/confirms/" + order?.dealReference, { headers: headers(tokens) })).json();
     if (order?.errorCode) return { error: order };
@@ -78,18 +123,15 @@ const CapitalClose = async (tokens, dealId) => {
     return { order, dealId: confirmation?.affectedDeals?.[0]?.dealId, level: confirmation?.level }
 }
 
-/**
- * Stream market data from Capital API.
- * @returns {} A function to close the stream.
-*/
-const CapitalStream = async (tokens, data, onUpdate, onError) => {
+
+/** Stream market data from Capital API. */
+export const CapitalStream = async (tokens, data, onUpdate, onError) => {
     let heartbeatInterval = null;
     let lastTime = null;
     const ohlc = true;
     const destination = ohlc ? 'OHLCMarketData' : 'marketData';
     let client = new WebSocket('wss://api-streaming-capital.backend-capital.com/connect');
-    client.on('open', () => {
-        // console.log("Stream opened");
+    client.onopen = () => {
         client.send(JSON.stringify({
             destination: `${destination}.subscribe`,
             correlationId: Date.now().toString(),
@@ -110,24 +152,23 @@ const CapitalStream = async (tokens, data, onUpdate, onError) => {
                 }));
             }
         }, 5000);
-    });
-    client.on('message', async (data) => {
-        const payload = JSON.parse(data.toString());
+    };
+    client.onmessage = async (event) => {
+        const payload = JSON.parse(event.data.toString());
         if (payload?.status === 'OK' && payload?.destination === (ohlc ? 'ohlc.event' : 'quote')) {
             if(!lastTime || payload?.payload?.t !== lastTime) {
                 lastTime = payload?.payload?.t;
-                await onUpdate?.(payload?.payload)
+                await onUpdate?.(streamToCandle(payload?.payload))
             }
         }
-    });
-    client.on('close', () => {
-        // console.log("Stream closed");
+    };
+    client.onclose = () => {
         if (heartbeatInterval) {
             clearInterval(heartbeatInterval);
             heartbeatInterval = null;
         }
-    });
-    client.on('error', (error)=> onError?.(error));
+    };
+    client.onerror = onError;
     return () => {
         if (heartbeatInterval) {
             clearInterval(heartbeatInterval);
@@ -153,14 +194,4 @@ const CapitalStream = async (tokens, data, onUpdate, onError) => {
             lastTime = null;
         }
     }
-}
-
-
-module.exports = {
-    CapitalLogin,
-    CapitalPrices,
-    CapitalPositions,
-    CapitalOpen,
-    CapitalClose,
-    CapitalStream
 }

@@ -1,42 +1,46 @@
 {
-  "name": "capital-trader",
-  "version": "1.0.20",
-  "description": "An automated trading bot for Capital.com with AI-powered strategy generation via Claude or ChatGPT.",
-  "main": "src/cli.js",
+  "name": "next-trader",
+  "version": "0.1.0",
+  "private": false,
+  "main": "server.js",
   "bin": {
-    "capital": "src/cli.js"
-  },
-  "scripts": {
-    "release": "npm version patch && git push && git push --tags && npm publish"
+    "capital": "server.js"
   },
   "files": [
-    "src/",
-    "config.json"
+    ".next/**/*",
+    "!.next/cache",
+    "!.next/diagnostics",
+    "!.next/types",
+    "!.next/trace",
+    "!.next/trace-build",
+    "!.next/**/*.map",
+    "!.next/**/*.nft.json",
+    "!.next/build",
+    "server.js"
   ],
-  "author": "NxRoot",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NxRoot/capital-trader.git"
+  "scripts": {
+    "dev": "next dev -p 5001",
+    "build": "next build",
+    "pack": "next build && npm pack",
+    "start": "next start",
+    "prebuild": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\"",
+    "posttypings": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/types/index.d.ts'); const original = 'export as namespace klinecharts;'; const addon = 'export declare const indicators: any[];\\n' + original; if(!readFileSync(file, 'utf-8').includes('export declare const indicators: any[];')) writeFileSync(file, readFileSync(file, 'utf-8').replace(original, addon));\"",
+    "postinstall": "node -e \"const {readFileSync, writeFileSync} = require('fs'); const file = require.resolve('klinecharts/dist/klinecharts.js'); const original = 'exports.version = version;'; const addon = original + '\\nexports.indicators = extensions\\x242;'; writeFileSync(file.replace('.js', '.min.js'), readFileSync(file, 'utf-8').replace(original, addon));\" && npm run posttypings"
   },
-  "bugs": {
-    "url": "https://github.com/NxRoot/capital-trader/issues"
-  },
-  "homepage": "https://github.com/NxRoot/capital-trader#readme",
-  "keywords": [
-    "capital",
-    "trader",
-    "bot",
-    "ai",
-    "strategy",
-    "backtesting",
-    "dashboard",
-    "trading",
-    "trading-bot",
-    "trading-strategy",
-    "capital.com"
-  ],
-  "license": "ISC",
   "dependencies": {
-    "ws": "^8.20.0"
+    "chart.js": "^4.4.0",
+    "klinecharts": "9.5.0",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
