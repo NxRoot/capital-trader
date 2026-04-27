@@ -7,8 +7,8 @@ An automated trading bot for [Capital.com](https://capital.com) with chart, indi
 ## Features
 
 - **Capital Live Trading** — Connects to Capital.com via REST API and WebSocket for real-time order execution
-- **Strategy Dashboard** — Create your own strategies using a conditional trade system with chart and indicators
-- **Extremely Flexible** — Runs on any device with a terminal including Raspberry Pi, VPS, or low-power servers
+- **Strategy Dashboard** — Create your own strategies using a conditional system with chart and indicators
+- **Extremely Flexible** — Runs on any device including Raspberry Pi, VPS, or low-power servers
 
 ## Requirements
 
