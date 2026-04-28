@@ -68,117 +68,34 @@ var str = {
         },
     ],
     
-    calcParams: [ 0.00115, 3, 30, 10, 100, 0.3 ],
+    calcParams: [ 25, 100 ],
 
     calc: (kLineDataList, { calcParams }) => {
-
-        const [ reversalPct, minBarsFloor, minBarsCap, minBarsDefault, pivotLookback, gapFraction ] = calcParams
-
         const result = kLineDataList.map(() => ({}))
-        let direction = 0
-        let extremeIdx = null
-        let extremePrice = null
-        let lastHighPrice = null
-        let lastLowPrice = null
-        const pivotIndices = []
 
-        const getDynamicMinBars = () => {
-            if (pivotIndices.length < 2) return minBarsDefault
-            let totalGap = 0
-            for (let k = 1; k < pivotIndices.length; k++) {
-                totalGap += pivotIndices[k] - pivotIndices[k - 1]
+        let high = calcParams[0] || 25
+        let lows = calcParams[1] || 100
+        let prev = []
+    
+        for (let i = 100; i < kLineDataList.length; i++) {
+            const kLineData = kLineDataList[i]
+
+            const prevHigh = prev?.slice(-high)?.map(p => p.close)
+            const prevLows = prev?.slice(-lows)?.map(p => p.close)
+
+            if (kLineData.close > Math.max(...prevHigh)) {
+                result[i].hh = kLineData.close
+                result[i].hhLabel = kLineData.close
+            } else if (kLineData.close < Math.min(...prevLows)) {
+                result[i].ll = kLineData.close
+                result[i].llLabel = kLineData.close
             }
-            const avgGap = totalGap / (pivotIndices.length - 1)
-            const dynamic = Math.floor(avgGap * gapFraction)
-            return Math.min(minBarsCap, Math.max(minBarsFloor, dynamic))
+            prev.push(kLineData)
         }
-
-        const registerPivot = (idx) => {
-            pivotIndices.push(idx)
-            if (pivotIndices.length > pivotLookback) pivotIndices.shift()
-        }
-
-        const labelHigh = (idx, price) => {
-            if (lastHighPrice === null || price > lastHighPrice) {
-                result[idx].hh = price
-                result[idx].hhLabel = price
-            } else {
-                result[idx].lh = price
-                result[idx].lhLabel = price
-            }
-        }
-
-        const labelLow = (idx, price) => {
-            if (lastLowPrice === null || price < lastLowPrice) {
-                result[idx].ll = price
-                result[idx].llLabel = price
-            } else {
-                result[idx].hl = price
-                result[idx].hlLabel = price
-            }
-        }
-
-        for (let i = 0; i < kLineDataList.length; i++) {
-            const close = Number(kLineDataList[i].close)
-
-            if (extremeIdx === null) {
-                extremeIdx = i
-                extremePrice = close
-                continue
-            }
-
-            if (direction === 0) {
-                if (close > extremePrice) {
-                    direction = 1
-                    extremeIdx = i
-                    extremePrice = close
-                    labelHigh(i, close)
-                } else if (close < extremePrice) {
-                    direction = -1
-                    extremeIdx = i
-                    extremePrice = close
-                    labelLow(i, close)
-                }
-                continue
-            }
-
-            const barsFromExtreme = i - extremeIdx
-            const movePct = Math.abs(close - extremePrice) / extremePrice
-            const minBars = getDynamicMinBars()
-
-            if (direction === 1) {
-                if (close > extremePrice) {
-                    result[extremeIdx] = {}
-                    extremeIdx = i
-                    extremePrice = close
-                    labelHigh(i, close)
-                } else if (movePct >= reversalPct && barsFromExtreme >= minBars) {
-                    registerPivot(extremeIdx)
-                    lastHighPrice = extremePrice
-                    direction = -1
-                    extremeIdx = i
-                    extremePrice = close
-                    labelLow(i, close)
-                }
-            } else {
-                if (close < extremePrice) {
-                    result[extremeIdx] = {}
-                    extremeIdx = i
-                    extremePrice = close
-                    labelLow(i, close)
-                } else if (movePct >= reversalPct && barsFromExtreme >= minBars) {
-                    registerPivot(extremeIdx)
-                    lastLowPrice = extremePrice
-                    direction = 1
-                    extremeIdx = i
-                    extremePrice = close
-                    labelHigh(i, close)
-                }
-            }
-        }
-
+    
         return result
     }
+    
 }
 
 const names: any = [

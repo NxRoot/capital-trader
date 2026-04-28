@@ -175,6 +175,9 @@ export class TradingBot {
 
         if (!this.data?.length) {
 
+            // Reset logs
+            this.logs = [];
+
             // Get market details
             const { marketDetails } = await CapitalMarkets(this.tokens, { epics: this.config?.epic });
             this.openingHours = marketDetails?.[0]?.instrument?.openingHours;

@@ -255,7 +255,7 @@ export default function Home({ cfg }: { cfg: any }) {
                       <div>T{(index / 2) + 1}</div>
                       <div className="text-blue-400">{open?.close?.toFixed(2)}</div>
                       <div className="text-zinc-400">{"➧"}</div>
-                      <div className={open?.close > close?.close ? "text-red-500" : "text-green-500"}>{close?.close?.toFixed(2)}</div>
+                      <div className={color}>{close?.close?.toFixed(2)}</div>
                     </div>
                     <div className={color}>{config?.account?.currencySymbol} {value?.toFixed(2)}</div>
                   </div>

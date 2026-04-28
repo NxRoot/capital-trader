@@ -104,6 +104,7 @@ const INDICATOR_OPTIONS = [
     'str_ll',
     'trix_trix',
     'trix_maTrix',
+    'vol_volume',
     'wr_wr1',
     'wr_wr2',
     'wr_wr3',
