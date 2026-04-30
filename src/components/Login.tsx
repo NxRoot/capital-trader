@@ -40,7 +40,6 @@ export default function Login({ onLogin }: { onLogin: (cfg: any) => void }) {
           <input value={form.username} onChange={(e) => set('username', e.target.value)} type="text" placeholder="Username" className="w-full p-2 px-3  border border-zinc-800 focus:ring-0 focus:outline-none" />
           <input value={form.apiKey} onChange={(e) => set('apiKey', e.target.value)} placeholder="API Key" className="w-full p-2 px-3  border border-zinc-800 focus:ring-0 focus:outline-none" />
           <input value={form.password} onChange={(e) => set('password', e.target.value)} type="password" placeholder="Password" className="w-full p-2 px-3  border border-zinc-800 focus:ring-0 focus:outline-none" />
-          {/* <input value={form.aiKey} onChange={(e) => set('aiKey', e.target.value)} placeholder="Anthropic Key (Optional)" className="w-full p-2 px-3  border border-zinc-800 focus:ring-0 focus:outline-none" /> */}
           <select value={form.environment} onChange={(e) => set('environment', e.target.value)} className="w-full p-2 px-3  border border-zinc-800 focus:ring-0 focus:outline-none appearance-none cursor-pointer">
             <option value="demo" className="bg-zinc-900 hover:bg-zinc-900/50 ">Demo</option>
             <option value="live" className="bg-zinc-900 hover:bg-zinc-900/50">Live</option>

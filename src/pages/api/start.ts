@@ -8,7 +8,9 @@ export default async function handler(
 ) {
   const config = await req.body;
   const bot = TradingBot.getInstance()
-  bot.setConfig(config);
+  bot.config = config;
+  bot.tokens = { apiKey: config?.apiKey };
+  bot.data = [];
   await bot.start();
   res.status(200).json({ ok: true });
 }

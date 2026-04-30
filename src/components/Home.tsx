@@ -32,10 +32,6 @@ export default function Home({ cfg }: { cfg: any }) {
   const [open, setOpen] = useState("");
   const [initial, setInitial] = useState<any[]>([]);
   const [idx, setIdx] = useState(0);
-  // const [mode, setMode] = useState("easy");
-  // const [text, setText] = useState("");
-  // const [loading, setLoading] = useState(false);
-  // const [strategies, setStrategies] = useState<any[]>([]);
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -51,33 +47,6 @@ export default function Home({ cfg }: { cfg: any }) {
     }
   }, [config])
 
-  // const generateAiCode = async () => {
-  //   if (!text || text.trim() === "") return;
-  //   setLoading(true);
-  //   await fetch("/api/ai", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ ...config, text, first: strategies.length === 0 }),
-  //   }).then(res => res.json()).then(data => {
-  //     if (data?.ok) {
-  //       setStrategies(prev => [...prev, { text: text, code: data.data, date: new Date().getTime() }])
-  //       setText("")
-  //     }
-  //   }).catch(err => {
-  //     console.error(err)
-  //   }).finally(() => {
-  //     setLoading(false)
-  //   })
-  // }
-
-  // const onEnterPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-  //   if (e.key === 'Enter' && !e.shiftKey) {
-  //     e.preventDefault()
-  //     e.stopPropagation()
-  //     generateAiCode()
-  //   }
-  // }
-
   const resetChanges = () => {
     editConfig({
       ...config,
@@ -91,8 +60,6 @@ export default function Home({ cfg }: { cfg: any }) {
     setCloseGroups(cfg?.closeGroups ?? DEFAULT_CONFIG.closeGroups)
     setOpenConnection(cfg?.openConnection ?? DEFAULT_CONFIG.openConnection)
     setCloseConnection(cfg?.closeConnection ?? DEFAULT_CONFIG.closeConnection)
-    // setStrategies([])
-    // setText("")
   }
 
   const handleImportConfig = async () => {
@@ -302,49 +269,21 @@ export default function Home({ cfg }: { cfg: any }) {
           <div className="flex items-center justify-center gap-6">
             <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleImportConfig}>Import</div>
             <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={handleExportConfig}>Export</div>
-            {/* <div className={`text-sm select-none cursor-pointer hover:opacity-80`} onClick={() => setMode(prev => prev === "ai" ? "easy" : "ai")}>{mode === "ai" ? "Easy Mode" : "AI Mode"}</div> */}
           </div>
           <button onClick={() => setOpen("")} className="w-7 h-7 text-white text-sm  leading-none rounded-0 hover:bg-white/5 cursor-pointer mr-1">{"✕"}</button>
         </div>
         <div className="flex flex-col flex-1 p-4 overflow-y-auto relative">
-
-          {/* {
-            mode === "ai" ? (
-              <div className="flex flex-col gap-2 -m-4">
-                <div className="z-2 flex flex-row items-center justify-start gap-2 w-full px-5 py-2.5 bg-zinc-800/50 border-b border-zinc-800">
-                  <div className="text-sm font-medium text-purple-400 tracking-wide">AI Assistant: </div>
-                  <div className="text-sm font-normal text-zinc-300 tracking-wide">Write a new prompt to generate a new strategy</div>
-                </div>
-                <div className="flex flex-col gap-2 p-4">
-                  {strategies?.map((strategy: any) => (
-                    <div key={strategy.date} className="text-sm font-normal text-zinc-300 tracking-wide flex items-center justify-start gap-2 bg-zinc-800/50 p-4 hover:bg-zinc-800/70 cursor-pointer" onClick={() => setConfig(prev => ({ ...prev, strategyCode: strategy.code }))}>
-                      <div className={`inline-block w-2.5 h-2.5 mt-[1px] rounded-full ${strategy.code === config.strategyCode ? 'bg-emerald-500' : 'bg-red-500'} mr-2`}></div>
-                      <div className="text-sm font-normal text-zinc-300 tracking-wide max-w-full overflow-hidden text-ellipsis whitespace-nowrap flex-1">{strategy.text}</div>
-                      <div className="text-xs font-normal text-zinc-400 tracking-wide">{new Date(strategy.date).toLocaleString()}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : ( */}
-              <Conditions
-                openGroups={openGroups}
-                closeGroups={closeGroups}
-                openConnection={openConnection}
-                closeConnection={closeConnection}
-                onOpenConnectionChange={setOpenConnection}
-                onCloseConnectionChange={setCloseConnection}
-                onOpenGroupsChange={setOpenGroups}
-                onCloseGroupsChange={setCloseGroups}
-              />
-            {/* )} */}
+          <Conditions
+            openGroups={openGroups}
+            closeGroups={closeGroups}
+            openConnection={openConnection}
+            closeConnection={closeConnection}
+            onOpenConnectionChange={setOpenConnection}
+            onCloseConnectionChange={setCloseConnection}
+            onOpenGroupsChange={setOpenGroups}
+            onCloseGroupsChange={setCloseGroups}
+          />
         </div>
-        {/* {
-          mode === "ai" ? (
-            <div className="flex items-center justify-between gap-3 p-4 px-3 border-t border-zinc-800 relative z-3">
-              <textarea disabled={loading} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onEnterPress} placeholder="Write your prompt here..." rows={8} className="w-full h-full resize-none rounded-0 border-none shadow-none bg-black/25 p-4 text-sm text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed" />
-            </div>
-          ) : null
-        } */}
         <div className="flex items-center justify-between gap-3 p-4 px-3 border-t border-zinc-800">
           <button disabled={config?.strategyCode === cfg?.strategyCode} className="flex-1 rounded-0 cursor-pointer px-4 py-3 text-sm font-semibold bg-zinc-700 text-zinc-200 hover:bg-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={saveChanges}>Save Changes</button>
           <button disabled={config?.strategyCode === cfg?.strategyCode} className="flex-1 rounded-0 cursor-pointer px-4 py-3 text-sm font-semibold bg-zinc-700 text-zinc-200 hover:bg-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed" onClick={resetChanges}>Reset Changes</button>

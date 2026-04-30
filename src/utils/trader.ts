@@ -1,25 +1,9 @@
 import { CapitalOpen, CapitalClose, CapitalLogin, CapitalMarkets, CapitalPrices, CapitalStream, toCandle, getMarketStatus } from "@/utils/capital";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { calculateIndicators } from "@/utils/chart";
 import { simulate } from "@/utils/strategy";
-import { homedir } from "os";
-import { join } from "path";
 
 // Function to create a delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Config directory and path
-const configDir = join(homedir(), '.capital');
-const configPath = join(configDir, 'config.json');
-
-// Function to load configuration from a JSON file
-const conf = () => {
-    if (!existsSync(configPath)) {
-        if (!existsSync(configDir)) mkdirSync(configDir, { recursive: true });
-        copyFileSync(join(__dirname, '..', '..', 'config.json'), configPath);
-    }
-    return JSON.parse(readFileSync(configPath, 'utf-8'));
-}
 
 export class TradingBot {
     static instance = null;
@@ -46,9 +30,6 @@ export class TradingBot {
             return TradingBot.instance;
         }
 
-        this.config = conf();
-        this.tokens = { apiKey: this.config?.apiKey };
-
         this.logs = [];
         this.data = [];
         this.open = null;
@@ -63,12 +44,6 @@ export class TradingBot {
     log(text: string) {
         console.log(`${new Date().toLocaleTimeString()}`, text)
         this.logs.push({ timestamp: new Date().getTime(), text })
-    }
-
-
-    setConfig(config: any) {
-        this.config = config;
-        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
     }
 
 
