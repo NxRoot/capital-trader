@@ -1,6 +1,6 @@
 {
   "name": "capital-trader",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "An automated trading bot for Capital.com with chart, indicators and strategy builder.",
   "keywords": [
     "capital",
