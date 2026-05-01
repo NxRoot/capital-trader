@@ -60,6 +60,7 @@ const PushConfig: React.FC<PushProps> = ({ config, onSave, onClose, openGroups, 
 
     const getLogsFromServer = async () => {
         if (loading) return;
+        setLogs([]);
         setLoading("getLogs");
         try {
             const result = await fetch("/api/logs")

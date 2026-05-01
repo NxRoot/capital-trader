@@ -18,6 +18,19 @@ const cleanConfig = (config: any) => {
   return config;
 }
 
+function Clock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center justify-center h-full border-x border-zinc-800 text-zinc-300 text-sm px-3 w-20">
+      {now.toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </div>
+  );
+}
+
 export default function Home({ cfg }: { cfg: any }) {
 
   const [openGroups, setOpenGroups] = useState<any[]>(cfg.openGroups ?? []);
@@ -129,7 +142,9 @@ export default function Home({ cfg }: { cfg: any }) {
             ))}
           </div>
           <div className="flex-1"></div>
-          <div title="BackBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(-10)}>
+          <Clock />
+          <div className="border-r border-zinc-800 h-full"></div>
+          <div title="Back 10" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(-10)}>
             {"<<"}
           </div>
           <div title="Back" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(-1)}>
@@ -138,7 +153,7 @@ export default function Home({ cfg }: { cfg: any }) {
           <div title="Forward" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(1)}>
             {">"}
           </div>
-          <div title="ForwardBack" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(10)}>
+          <div title="Forward 10" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => moveIndex(10)}>
             {">>"}
           </div>
           <div title="Bot server" className={`w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:opacity-100 cursor-pointer rounded-0 font-normal select-none ml-2`} onClick={() => setOpen("push")}>

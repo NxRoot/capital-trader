@@ -5,26 +5,16 @@ function getFieldAccess(condition: Condition): string {
   const idx = offset === 0 ? "i" : offset > 0 ? `i-${offset}` : `i+${Math.abs(offset)}`;
 
   switch (condition.field) {
-    case "CLOSE":
-      return `data[${idx}]?.['close']`;
-    case "OPEN":
-      return `data[${idx}]?.['open']`;
-    case "HIGH":
-      return `data[${idx}]?.['high']`;
-    case "LOW":
-      return `data[${idx}]?.['low']`;
-    case "LAST":
-      return `data[${idx}]?.['close']`;
-    case "COST":
-      return "cost";
-    case "HOLD":
-      return "hold";
-    case "PROFIT":
-      return "profit";
-    case "INDICATOR":
-      return condition.indicatorName ? `data[${idx}]?.['${condition.indicatorName}']` : "0";
-    default:
-      return "0";
+    case "CLOSE":       return `data[${idx}]?.['close']`;
+    case "OPEN":        return `data[${idx}]?.['open']`;
+    case "HIGH":        return `data[${idx}]?.['high']`;
+    case "LOW":         return `data[${idx}]?.['low']`;
+    case "LAST":        return `data[${idx}]?.['close']`;
+    case "COST":        return "cost";
+    case "HOLD":        return "hold";
+    case "PROFIT":      return "profit";
+    case "INDICATOR":   return condition.indicatorName ? `data[${idx}]?.['${condition.indicatorName}']` : "0";
+    default:            return "0";
   }
 }
 
@@ -78,20 +68,13 @@ function getValueExpression(condition: Condition): string {
 
 function getOperator(operator: OperatorType): string {
   switch (operator) {
-    case "BIGGER":
-      return ">";
-    case "SMALLER":
-      return "<";
-    case "EQUAL":
-      return "==";
-    case "NOT_EQUAL":
-      return "!=";
-    case "BIGGER_EQUAL":
-      return ">=";
-    case "SMALLER_EQUAL":
-      return "<=";
-    default:
-      return ">";
+    case "BIGGER":          return ">";
+    case "SMALLER":         return "<";
+    case "EQUAL":           return "==";
+    case "NOT_EQUAL":       return "!=";
+    case "BIGGER_EQUAL":    return ">=";
+    case "SMALLER_EQUAL":   return "<=";
+    default:                return ">";
   }
 }
 
@@ -99,9 +82,7 @@ function conditionToCode(condition: Condition): string {
   // Special handling for LAST field with RED/GREEN and EQUAL operator
   // Example: LAST | 5 | EQUAL | RED -> checks if last 5 bars are all red
   // This means: data[i]['close'] < data[i-1]['close'] && data[i-1]['close'] < data[i-2]['close'] && ...
-  if (condition.field === "LAST" && 
-      (condition.valueType === "RED" || condition.valueType === "GREEN") && 
-      (condition.operator === "EQUAL" || condition.operator === "NOT_EQUAL")) {
+  if (condition.field === "LAST" && (condition.valueType === "RED" || condition.valueType === "GREEN") && (condition.operator === "EQUAL" || condition.operator === "NOT_EQUAL")) {
     const count = condition.offset ? parseInt(condition.offset, 10) : 1;
     const isRed = condition.valueType === "RED";
     const isNotEqual = condition.operator === "NOT_EQUAL";
@@ -147,9 +128,8 @@ function conditionToCode(condition: Condition): string {
 }
 
 function groupToCode(group: ConditionGroup): string {
-  if (group.conditions.length === 0) {
-    return "false";
-  }
+  
+  if (group.conditions.length === 0) return "false";
   
   const conditionCodes = group.conditions.map(conditionToCode);
   const operator = group.operator === "AND" ? " && " : " || ";
@@ -167,16 +147,10 @@ export function generateStrategyCode(
   activeTab: "BUY" | "SELL"
 ): string {
   // For open groups: combine all groups with AND (all groups must be true)
-  const openCode =
-    openGroups.length > 0
-      ? openGroups.map(groupToCode).join(openConnection === "AND" ? " && " : " || ")
-      : "false";
+  const openCode = openGroups.length > 0 ? openGroups.map(groupToCode).join(openConnection === "AND" ? " && " : " || ") : "false";
 
   // For close groups: combine all groups with OR (any group can be true)
-  const closeCode =
-    closeGroups.length > 0
-      ? closeGroups.map(groupToCode).join(closeConnection === "AND" ? " && " : " || ")
-      : "false";
+  const closeCode = closeGroups.length > 0 ? closeGroups.map(groupToCode).join(closeConnection === "AND" ? " && " : " || ") : "false";
 
   const typeLogic = `type = "${activeTab}"`;
 

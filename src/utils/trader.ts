@@ -108,14 +108,17 @@ export class TradingBot {
         // Simulate strategy
         const simulation = simulate(indicators, this.config?.strategyCode, this.config?.orderSize, (date) => getMarketStatus(date, this.openingHours, 5));
 
-        // Check for trade
-        const trade = simulation?.result?.find((t) => t?.time === indicators?.[indicators?.length - 1]?.timestamp);
+        // Check for trades
+        const [first, second] = simulation?.result?.filter((t) => t?.time === indicators?.[indicators?.length - 1]?.timestamp);
 
         // Open position
-        if (trade?.type === "BUY" && !this.open?.dealId) await this.openPosition(trade);
+        if (first?.type === "BUY" && !this.open?.dealId) await this.openPosition(first);
 
         // Close position
-        else if (trade?.type === "SELL" && this.open?.dealId) await this.closePosition(price); 
+        if (first?.type === "SELL" && this.open?.dealId) await this.closePosition(price);
+
+        // Revenge position
+        if (second?.type === "BUY" && !this.open?.dealId) await this.openPosition(first);
         
         // Hold position
         else this.log(`[HOLD] Looking to ${this.open?.dealId ? "CLOSE" : "OPEN"} trade...`);
@@ -178,6 +181,7 @@ export class TradingBot {
             this.log(`[START] Epic: ${this.config?.epic}`)
             this.log(`[START] Timeframe: ${this.config?.timeframe}`)
             this.log(`[START] Environment: ${this.config?.environment}`)
+            this.log(`[START] Syncing candles...`)
 
         }
 

@@ -99,8 +99,9 @@ export function simulate(data = [], code: string, size = 0, marketStatus = (_: D
                 else loss++
             }
 
+            
+            if (order && canSell) CLOSE_ORDER()
             if (!order && canBuy) OPEN_ORDER()
-            else if (order && canSell) CLOSE_ORDER()
 
             // Drawdown calculation: for LONG, drawdown when price goes down
             // For SHORT, drawdown when price goes up

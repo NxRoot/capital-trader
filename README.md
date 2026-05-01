@@ -16,7 +16,7 @@ An automated trading bot for [Capital.com](https://capital.com) with chart, indi
 - [Capital.com](https://capital.com) account with API key
 
 ## Installation
-
+Some dependencies take some time to install
 ```perl
 npm i -g capital-trader
 ```
